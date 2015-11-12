@@ -13,13 +13,6 @@ app.controller('MainCtrl', function($scope){
             $scope.tab.title = tabs[0].title;
             $scope.tab.url = tabs[0].url;
             $scope.$apply();
-
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                console.log("before the send start in popup");
-                //chrome.tabs.sendMessage(tabs[0].id, {action: "start"}, function(response) {
-                //    console.log(response.msg);
-                //});
-            });
         }
     });
 
@@ -27,6 +20,8 @@ app.controller('MainCtrl', function($scope){
         function (response) {
             console.log(response.msg);
         });
+
+
 
 //    // Canvas
 //    document.addEventListener('DOMContentLoaded', function draw() {

@@ -1,3 +1,4 @@
 .idea
+.DS_Store
 node_modules
 jquery-2.1.4.min.js

@@ -1,11 +1,9 @@
-console.log("background");
-
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
 
-        if (request.action == "start") {
-            console.log("got in the START action (in bg)");
-            sendResponse({msg: "The ext has started. This came from the background listener."});
+        if (request.action == "getHTML") {
+            console.log("The HTML for this page is:", request.data);
+            sendResponse({data: request.data});
         }
 
     });

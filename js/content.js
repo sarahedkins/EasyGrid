@@ -17,6 +17,25 @@ window.addEventListener("load", function() {
             myProperty: "value"
         }
     });
+
 }, true);
+
+$(document).click(function() {
+    var html = $("html").html();
+    // Get HTML from page and send to background
+    chrome.runtime.sendMessage({
+        action: "getHTML",
+        data: html
+    });
+
+    alert( "You clicked on " + this);
+});
+
+
+
+//$(document).click(function() {
+//    alert("me");
+//});
+
 
 

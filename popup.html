@@ -4,10 +4,11 @@
     <title>Sarah's Chrome Extension</title>
 
     <!--style-->
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.11.2/angular-material.min.css">
     <link rel="stylesheet" href="style/style.css">
 
-    <!--angular-->
+    <!--angular -->
     <script src="node_modules/angular/angular.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/popup.js"></script>
@@ -24,7 +25,7 @@
     <div>
       <md-slider ng-model="columns" min="1" max="12">
       </md-slider>
-      <button type="button">Submit</button>
+      <button type="button" class="btn btn-primary">Submit</button>
     </div>
     </div>
   </body>
