@@ -16,9 +16,9 @@
   <body id="popup">
   <div ng-controller="MainCtrl">
     <h5> {{ title }}</h5>
-    <p> Current tab title: {{ title}} </p>
-    <p> Current tab url: {{ url}} </p>
-    <p> PageInfors: {{ pageInfos }} </p>
+    <p> Current tab title: {{ tab.title}} </p>
+    <p> Current tab url: {{ tab.url}} </p>
+    <p ng-show="currentElement"> Currently selected DOM element: {{ currentElement }} </p>
     <div id="status"></div>
     <canvas id="display" ng-model="myCanvas" width="300" height="187.5"></canvas>
     <div>
