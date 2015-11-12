@@ -1,0 +1,16 @@
+body {
+    font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+    font-size: 100%;
+}
+#popup {
+    width: 700px;
+    height: 500px;
+    background-color: lightgoldenrodyellow;
+    color: black;
+}
+#status {
+    color: darkcyan;
+}
+#display {
+    border: 1px solid black;
+}
