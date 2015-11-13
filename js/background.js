@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(
             if (html) {
                 dataToSend.data = html;
             } else {
-                dataToSend.error = "HTML has not yet been registered for this page.";
+                dataToSend.error = "First click an element on the page to view it's HTML.";
             }
             sendResponse(dataToSend);
         }

@@ -1,4 +1,16 @@
 app.controller("GridCtrl", function($scope, GridFactory){
+    // Persist last grid and data when popup is reopened
+
+    var persistGrid = function() {
+        var rc = GridFactory.getCurrentRC();
+        if(rc[0] == 0 && rc[0] == 0) {
+            return;
+        } else {
+            GridFactory.drawGrid(rc[0], rc[1]);
+        }
+    }
+    persistGrid();
+
     $scope.dim = {};
     $scope.dim.width = GridFactory.getWidth();
     $scope.dim.height = GridFactory.getHeight();

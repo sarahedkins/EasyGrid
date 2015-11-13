@@ -27,15 +27,17 @@
     <p> Current tab url: {{ tab.url}} </p>
     <div id="status"></div>
     <div>
-      <button type="button" class="btn btn-primary" ng-click="getHTML()">Get HTML</button>
-      <div ng-show="error"> {{ error }} </div>
-      <div ng-show="selectedHTML"> {{ selectedHTML }} </div>
+      <button type="button" class="btn btn-primary" ng-click="getHTML()">View current element selection</button>
+        <pre>
+          <div ng-show="error"> {{ error }} </div>
+          <div ng-show="selectedHTML">{{ selectedHTML }}</div>
+        </pre>
     </div>
 
      <!--Canvas and Grid Input Form-->
     <div ng-controller="GridCtrl">
-      <canvas id="display" ng-model="myCanvas" width="{{ dim.width}}" height="{{ dim.height }}"></canvas>
-      <!--<canvas id="myCanvas" resize></canvas>-->
+      <canvas id="display" width="{{ dim.width }}" height="{{ dim.height }}"></canvas>
+            <!--Paper.js canvas--<canvas id="myCanvas" resize></canvas>-->
       <div>
         <form class="form-inline" name="gridForm" ng-submit="drawGrid(newGrid.rows, newGrid.cols)">
           <div class="form-group">
@@ -56,8 +58,11 @@
       </div>
     </div>
 
+    <div ng-controller="HTMLCtrl">
+      <div><pre> {{ generatedHTML() }} </pre></div>
     </div>
-  </div>
+
+    </div>
   </body>
 </html>
 
