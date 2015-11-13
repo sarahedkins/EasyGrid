@@ -20,7 +20,7 @@
     <script src="js/HTMLFactory.js"></script>
 
   </head>
-  <body id="popup">
+  <body id="popup" ng-app="app">
   <div ng-controller="MainCtrl">
     <h5> {{ title }}</h5>
     <p> Current tab title: {{ tab.title}} </p>
@@ -59,7 +59,11 @@
     </div>
 
     <div ng-controller="HTMLCtrl">
-      <div><pre> {{ generatedHTML() }} </pre></div>
+      <button type="submit" class="btn btn-warning" ng-click="generateHTML()">
+        <i class="glyphicon glyphicon-th-large"></i>
+        Generate HTML
+      </button>
+      <div><pre>{{ generatedHTML }}</pre></div>
     </div>
 
     </div>

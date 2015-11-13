@@ -2,7 +2,21 @@ console.log("Background is running...");
 
 var html = null;
 var currentRC = [];
-var coordinateHash = {};
+var coordinateHash = {};   /* Keys are rc coordinates and values are html strings.
+ { r0c1: “<div>cats</div>”, r1c1: “<div>meow</div>” } */
+
+// for generator
+var bits = {
+    container: '<div class="container">',
+    row: '<div class="row">',
+    nl: '<br />',
+    close: '</div>'
+}
+
+var colMaker = function(sz, span) {
+    console.log("in colMaker, sz " + sz, ", span: " + span);
+    return '<div class="col-' + sz + '-' + span + '"></div>';
+}
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -53,6 +67,39 @@ chrome.runtime.onMessage.addListener(
         if (request.action == "getCoordHash") {
             console.log("Received request to send coordinates from bg.");
             sendResponse({data: coordinateHash});
+        }
+
+        // generate and send the new html to the frontend
+        if (request.action == "generateHTML") {
+            console.log("Received request to generate html");
+            var sz = "lg";
+            var newHTML = "";
+            var dim = currentRC;
+            var rows = dim[0], cols = dim[1];
+            var span = 12 / dim[1]; // number of Bootstrap columns to span across
+            var key;
+
+            // generate the html
+            newHTML += bits.container;
+            for (var i = 0; i < rows; i++) {
+                newHTML += bits.row;
+                for (var j = 0; j < cols; j++){
+                    // check the hash obj
+                    key = "r" + i + "c" + j;
+                    console.log("i is", i, "j is", j);
+                    console.log("key is", key);
+                    console.log("coordinateHash is", coordinateHash);
+                    if (coordinateHash.hasOwnProperty(key)) {
+                        console.log("coordinateHash[key]", coordinateHash[key]);
+                        console.log("appending the user's content!");
+                        newHTML += coordinateHash[key];
+                    }
+                    newHTML += colMaker(sz, span);
+                }
+                newHTML += bits.close;
+            }
+            newHTML += bits.close;
+            sendResponse({data: newHTML});
         }
 
     });

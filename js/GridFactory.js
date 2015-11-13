@@ -1,8 +1,7 @@
-app.controller("GridCtrl", function($scope, GridFactory, HTMLFactory){
+app.controller("GridCtrl", function($scope, GridFactory){
 
     // get saved grid rows/cols from background to display for persistence
     chrome.runtime.sendMessage({action: "getRC"}, function(response){
-        console.log("Response from getRC is", response);
         var rc = response.data;
         GridFactory.drawGrid(rc[0], rc[1]);
     });
@@ -28,7 +27,7 @@ app.controller("GridCtrl", function($scope, GridFactory, HTMLFactory){
             console.log("Response from updateCoordHash is", response);
             // keep factory in sync with background
             var key = "r" + x + "c" + y;
-            HTMLFactory.updateCoordinateHash(x, y, response.data[key]);
+           // HTMLFactory.updateCoordinateHash(x, y, response.data[key]);
         });
 
     }, false);
