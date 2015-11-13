@@ -3,6 +3,10 @@
   <head>
     <title>Sarah's Chrome Extension</title>
 
+    <!-- Load the Paper.js library -->
+    <!--<link rel="text/javascript" href="node_modules/paper/dist/paper.core.min.js">-->
+    <!--<script type="text/paperscript" src="js/paper.js" canvas="myCanvas"></script>-->
+
     <!--style-->
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.11.2/angular-material.min.css">
@@ -12,6 +16,8 @@
     <script src="node_modules/angular/angular.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/popup.js"></script>
+    <script src="js/GridFactory.js"></script>
+    <script src="js/HTMLFactory.js"></script>
 
   </head>
   <body id="popup">
@@ -19,15 +25,39 @@
     <h5> {{ title }}</h5>
     <p> Current tab title: {{ tab.title}} </p>
     <p> Current tab url: {{ tab.url}} </p>
-    <p ng-show="currentElement"> Currently selected DOM element: {{ currentElement }} </p>
     <div id="status"></div>
-    <canvas id="display" ng-model="myCanvas" width="300" height="187.5"></canvas>
     <div>
-      <md-slider ng-model="columns" min="1" max="12">
-      </md-slider>
-      <button type="button" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-primary" ng-click="getHTML()">Get HTML</button>
+      <div ng-show="error"> {{ error }} </div>
+      <div ng-show="selectedHTML"> {{ selectedHTML }} </div>
     </div>
+
+     <!--Canvas and Grid Input Form-->
+    <div ng-controller="GridCtrl">
+      <canvas id="display" ng-model="myCanvas" width="{{ dim.width}}" height="{{ dim.height }}"></canvas>
+      <!--<canvas id="myCanvas" resize></canvas>-->
+      <div>
+        <form class="form-inline" name="gridForm" ng-submit="drawGrid(newGrid.rows, newGrid.cols)">
+          <div class="form-group">
+            <label for="rows">Rows:</label>
+            <select class="form-control" name="rows" ng-model="newGrid.rows"
+                    ng-options="num for num in maxRC" required>
+            </select>
+            <label for="cols">Columns:</label>
+            <select class="form-control" name="cols" ng-model="newGrid.cols"
+                    ng-options="num for num in maxRC" required>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success">
+            <i class="glyphicon glyphicon-th-large"></i>
+              Make Grid
+          </button>
+        </form>
+      </div>
     </div>
+
+    </div>
+  </div>
   </body>
 </html>
 

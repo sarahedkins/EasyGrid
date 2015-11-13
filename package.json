@@ -12,6 +12,8 @@
   "dependencies": {
     "angular": "^1.4.7",
     "bootstrap": "^3.3.5",
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "paper": "^0.9.25",
+    "path": "^0.12.7"
   }
 }

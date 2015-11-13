@@ -1,8 +1,12 @@
 var express = require('express');
 var app = express();
+var path = require("path");
+
+app.use('/img', express.static(__dirname + "/test-html"));
 
 app.get('/', function (req, res) {
-    res.send('<p id="hello"> Hello World! </p>');
+    // var webpage = '<p id="hello"> Hello World! </p>';
+    res.sendFile(path.join(__dirname + '/test-html/product-tile.html'));
 });
 
 var server = app.listen(3000, function () {
