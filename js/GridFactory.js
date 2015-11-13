@@ -1,15 +1,11 @@
 app.controller("GridCtrl", function($scope, GridFactory){
-    // Persist last grid and data when popup is reopened
 
-    var persistGrid = function() {
-        var rc = GridFactory.getCurrentRC();
-        if(rc[0] == 0 && rc[0] == 0) {
-            return;
-        } else {
-            GridFactory.drawGrid(rc[0], rc[1]);
-        }
-    }
-    persistGrid();
+    // get saved grid rows/cols from background to display for persistence
+    chrome.runtime.sendMessage({action: "getRC"}, function(response){
+        console.log("Response from getRC is", response);
+        var rc = response.data;
+        GridFactory.drawGrid(rc[0], rc[1]);
+    });
 
     $scope.dim = {};
     $scope.dim.width = GridFactory.getWidth();
@@ -51,6 +47,11 @@ app.factory("GridFactory", function(){
         drawGrid: function(rows, cols) {
             currentRows = rows;
             currentCols = cols;
+
+            // send updated grid rows/cols to background for persistence
+            chrome.runtime.sendMessage({action: "gridRC", data: {row: rows, col: cols}}, function(response){
+                console.log("Response from gridRC is", response);
+            });
 
             var canvas = document.getElementById("display");
             if (canvas.getContext) {
