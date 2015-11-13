@@ -2,6 +2,7 @@ console.log("Background is running...");
 
 var html = null;
 var currentRC = [];
+var coordinateHash = {};
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -38,6 +39,20 @@ chrome.runtime.onMessage.addListener(
         if (request.action == "getRC") {
             console.log("Received request to send row/col from bg.");
             sendResponse({data: currentRC});
+        }
+
+        // receive coordinates, combine with current html and save in hash
+        if (request.action == "updateCoordHash") {
+            console.log("Received request to store coordinates in bg.");
+            var key = "r" + request.data.x + "c" + request.data.y;
+            coordinateHash[key] = html;
+            sendResponse({data: coordinateHash});
+        }
+
+        // send the coordinate hash back to the frontend
+        if (request.action == "getCoordHash") {
+            console.log("Received request to send coordinates from bg.");
+            sendResponse({data: coordinateHash});
         }
 
     });

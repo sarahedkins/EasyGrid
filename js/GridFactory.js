@@ -1,4 +1,4 @@
-app.controller("GridCtrl", function($scope, GridFactory){
+app.controller("GridCtrl", function($scope, GridFactory, HTMLFactory){
 
     // get saved grid rows/cols from background to display for persistence
     chrome.runtime.sendMessage({action: "getRC"}, function(response){
@@ -18,7 +18,19 @@ app.controller("GridCtrl", function($scope, GridFactory){
     canvas.addEventListener('click', function(e) {
         console.log('click position: ' + e.offsetX + '/' + e.offsetY);
         var x = e.offsetX, y = e.offsetY;
-        // TODO determine where click coordinates and return id for the part of template?
+
+        // send coordinates to the background,
+        // where it will be paired with the current html selected
+        // and stored in a coordinate hash
+        var rc = GridFactory.getCoordinatesFromPixels(x, y);
+        var r = rc[0], c = rc[1];
+        chrome.runtime.sendMessage({action: "updateCoordHash", data: {x: r, y: c}}, function(response){
+            console.log("Response from updateCoordHash is", response);
+            // keep factory in sync with background
+            var key = "r" + x + "c" + y;
+            HTMLFactory.updateCoordinateHash(x, y, response.data[key]);
+        });
+
     }, false);
 
 });
@@ -55,7 +67,6 @@ app.factory("GridFactory", function(){
 
             var canvas = document.getElementById("display");
             if (canvas.getContext) {
-                console.log("drawing...");
                 var ctx = canvas.getContext("2d");
                 ctx.beginPath();
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -77,6 +88,16 @@ app.factory("GridFactory", function(){
                     ctx.stroke();
                 }
             }
+        },
+        getCoordinatesFromPixels: function(x, y) {
+            // Convert x,y pixel coordinates to grid ROW x COL coordinates
+            var rSpacing = canvasHeight / currentRows; // number of pixels per row
+            var row = Math.floor(y / rSpacing);
+
+            var cSpacing = canvasWidth / currentCols; // number of pixels per col
+            var col = Math.floor(x / cSpacing);
+            console.log("COORDINATES ARE:::", row, col);
+            return [row, col];
         }
     };
 
