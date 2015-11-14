@@ -1,33 +1,47 @@
 app.controller("GridCtrl", function($scope, GridFactory){
 
+    // TODO make work for 5 cols?? weird.
+    $scope.maxRC = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
     // get saved grid rows/cols from background to display for persistence
     chrome.runtime.sendMessage({action: "getRC"}, function(response){
         var rc = response.data;
         GridFactory.drawGrid(rc[0], rc[1]);
     });
 
-    // marker size should be based on size of grid blocks
-
-
     // get saved grid element positions from coordinateHash in bg
     var rcArr, rCoord, cCoord, rectCenter;
-    chrome.runtime.sendMessage({action: "getCoordHash"}, function(response){
-        $scope.gridElements = response.data;
-        console.log("coordHash res.data", response.data);
-        for (var key in $scope.gridElements) {
-            rcArr = key.split("c");
-            rCoord = rcArr[0].slice(1);
-            cCoord = rcArr[1];
-            rectCenter = GridFactory.getPixelsFromCoordinates(rCoord, cCoord);
+    $scope.legend = [];
+    var paintGridFromHash = function(){
+        $scope.legend = [];
+        chrome.runtime.sendMessage({action: "getCoordHash"}, function(response){
+            $scope.gridElements = response.data;
+            console.log("coordHash res.data", response.data);
+            var color_index = 0;
+            for (var key in $scope.gridElements) {
+                rcArr = key.split("c");
+                rCoord = rcArr[0].slice(1);
+                cCoord = rcArr[1];
+                rectCenter = GridFactory.getPixelsFromCoordinates(rCoord, cCoord);
+                // put a marker on the canvas
+                var canvas = document.getElementById("display");
+                if (canvas.getContext) {
+                    var ctx = canvas.getContext("2d");
+                    var markerSz = GridFactory.markerSize();
+                    var color = GridFactory.color(color_index);
+                    ctx.fillStyle = color;
+                    ctx.fillRect(rectCenter[0] - (markerSz/2), rectCenter[1] - (markerSz/2),  markerSz, markerSz);
+                }
+                // display the legend (marker color + html snippet)
+                $scope.legend.push({html: $scope.gridElements[key], color: color});
+                $scope.$apply();
 
-            var canvas = document.getElementById("display");
-            if (canvas.getContext) {
-                var ctx = canvas.getContext("2d");
-                var markerSz = GridFactory.markerSize();
-                ctx.fillRect(rectCenter[0] - (markerSz/2), rectCenter[1] - (markerSz/2),  markerSz, markerSz);
+                // get next color for next snippet
+                color_index++;
             }
-        }
-    });
+        });
+    }
+    paintGridFromHash();
 
     $scope.dim = {};
     $scope.dim.width = GridFactory.getWidth();
@@ -42,15 +56,14 @@ app.controller("GridCtrl", function($scope, GridFactory){
         var x = e.offsetX, y = e.offsetY;
 
         // send coordinates to the background,
-        // where it will be paired with the current html selected
+        // where it will be paired with the currently selected html
         // and stored in a coordinate hash
         var rc = GridFactory.getCoordinatesFromPixels(x, y);
         var r = rc[0], c = rc[1];
         chrome.runtime.sendMessage({action: "updateCoordHash", data: {x: r, y: c}}, function(response){
             console.log("Response from updateCoordHash is", response);
-            // keep factory in sync with background
-            var key = "r" + x + "c" + y;
-           // HTMLFactory.updateCoordinateHash(x, y, response.data[key]);
+            // keep view in sync with background
+            paintGridFromHash();
         });
 
     }, false);
@@ -71,6 +84,10 @@ app.factory("GridFactory", function(){
     var getCSpacing = function(){
         return canvasWidth / currentCols;
     };
+
+    var colors = ["Blue", "BlueViolet", "Coral", "Crimson",
+        "DarkSeaGreen", "DeepPink", "Gold", "GreenYellow",
+        "Tan", "SkyBlue", "Red", "Black"];
 
     var gridFactory = {
         setCanvasByWidth: function(width){
@@ -142,6 +159,12 @@ app.factory("GridFactory", function(){
         },
         markerSize: function(){
             return (getCSpacing() * .1);
+        },
+        color: function(idx) {
+            if (idx > colors.length - 1) {
+                idx = idx % colors.length;
+            }
+            return colors[idx];
         }
     };
 

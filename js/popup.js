@@ -3,8 +3,8 @@ app.controller('MainCtrl', function($scope){
     $scope.tab = {};
     $scope.error = null;
     $scope.selectedHTML = null;
-    // TODO separate rows from columns, don't allow 5,7,8,9,10,11 cols. for now.
-    $scope.maxRC = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    $scope.showHTML = false;
+    $scope.showError = true;
 
     $scope.onGrid = [];
 
@@ -20,18 +20,16 @@ app.controller('MainCtrl', function($scope){
     }
 
     // get HTML from background, put it on the pop-up scope
-    $scope.getHTML = function() {
-        chrome.runtime.sendMessage({action: "sendHTML"}, function(response){
-            console.log("Response from sendHTML is", response);
-            if(response.data) {
-                $scope.selectedHTML = response.data;
-
-            } else {
-                $scope.error = response.error;
-            }
-            $scope.$apply();
-        })
-    };
+    chrome.runtime.sendMessage({action: "sendHTML"}, function(response){
+        console.log("Response from sendHTML is", response);
+        if(response.data) {
+            $scope.selectedHTML = response.data;
+            $scope.showHTML = true;
+        } else {
+            $scope.error = response.error;
+        }
+        $scope.$apply();
+    });
 
     // get current tab info
     chrome.tabs.query({ 'active': true }, function(tabs){

@@ -11,15 +11,14 @@ $(document).click(function(event) {
     });
 });
 
-//$(document).click(function() {
-//    alert("Clicked!! this is", this);
-//    var html = $(this).html();
-//    chrome.runtime.sendMessage({
-//        action: "saveHTML",
-//        data: html
-//    });
-//});
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
+    if (request.action == "changeContent") {
+        console.log("Got inside the changeContent listener in content.js.");
+        console.log("request.html is", request.html);
 
+        document.body.innerHTML = request.html;
+    }
+});
 
 // TODO highlight on hover over clickable elements
 

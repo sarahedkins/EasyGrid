@@ -3,16 +3,12 @@
   <head>
     <title>Sarah's Chrome Extension</title>
 
-    <!-- Load the Paper.js library -->
-    <!--<link rel="text/javascript" href="node_modules/paper/dist/paper.core.min.js">-->
-    <!--<script type="text/paperscript" src="js/paper.js" canvas="myCanvas"></script>-->
-
     <!--style-->
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.11.2/angular-material.min.css">
     <link rel="stylesheet" href="style/style.css">
 
-    <!--angular -->
+    <!--angular-->
     <script src="node_modules/angular/angular.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/popup.js"></script>
@@ -21,41 +17,59 @@
 
   </head>
   <body id="popup" ng-app="app">
+  <div class="container">
   <div ng-controller="MainCtrl">
-    <h5> {{ title }}</h5>
-    <p> Current tab title: {{ tab.title}} </p>
-    <p> Current tab url: {{ tab.url}} </p>
-    <div id="status"></div>
-    <div>
-      <button type="button" class="btn btn-primary" ng-click="getHTML()">View current element selection</button>
-        <pre>
-          <div ng-show="error"> {{ error }} </div>
-          <div ng-show="selectedHTML">{{ selectedHTML }}</div>
-        </pre>
+    <div class="row">
+      <h5> {{ title }}</h5>
+      <p> You are griddling {{ tab.title}}. </p>
+      <div id="status"></div>
+      <div>
+        <div ng-if="error"> {{ error }} </div>
+        <div ng-if="showHTML"> Currently selected: {{ selectedHTML }} </div>
+      </div>
     </div>
+  </div>
 
      <!--Canvas and Grid Input Form-->
     <div ng-controller="GridCtrl">
-      <canvas id="display" width="{{ dim.width }}" height="{{ dim.height }}"></canvas>
-            <!--Paper.js canvas--<canvas id="myCanvas" resize></canvas>-->
-      <div>
-        <form class="form-inline" name="gridForm" ng-submit="drawGrid(newGrid.rows, newGrid.cols)">
-          <div class="form-group">
-            <label for="rows">Rows:</label>
-            <select class="form-control" name="rows" ng-model="newGrid.rows"
-                    ng-options="num for num in maxRC" required>
-            </select>
-            <label for="cols">Columns:</label>
-            <select class="form-control" name="cols" ng-model="newGrid.cols"
-                    ng-options="num for num in maxRC" required>
-            </select>
+    <div class="row">
+        <div class="col-xs-5">
+          <div>
+            <canvas id="display" width="{{ dim.width }}" height="{{ dim.height }}"></canvas>
           </div>
-          <button type="submit" class="btn btn-success">
-            <i class="glyphicon glyphicon-th-large"></i>
-              Make Grid
-          </button>
-        </form>
-      </div>
+        </div>
+        <div class="col-xs-7">
+          <ul>
+            <li ng-repeat="item in legend" style="list-style-type: none">
+              <span class="glyphicon glyphicon-triangle-left" style="color:{{ item.color }}"></span> {{ item.html }}
+            </li>
+          </ul>
+        </div>
+    </div>
+        <div class="row">
+          <form class="form-inline" name="gridForm" ng-submit="drawGrid(newGrid.rows, newGrid.cols)">
+            <div>
+            <div class="col-xs-4">
+              <label for="rows">Rows:</label>
+              <select class="form-control" name="rows" ng-model="newGrid.rows"
+                      ng-options="num for num in maxRC" required>
+              </select>
+            </div>
+            <div class="col-xs-4">
+              <label for="cols">Columns:</label>
+              <select class="form-control" name="cols" ng-model="newGrid.cols"
+                      ng-options="num for num in maxRC" required>
+              </select>
+            </div>
+            </div>
+            <div class="col-xs-4">
+              <button type="submit" class="btn btn-success">
+                <i class="glyphicon glyphicon-th-large"></i>
+                  Make Grid
+              </button>
+            </div>
+          </form>
+        </div>
     </div>
 
     <div ng-controller="HTMLCtrl">
@@ -67,6 +81,7 @@
     </div>
 
     </div>
+  </div>
   </body>
 </html>
 
