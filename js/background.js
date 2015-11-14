@@ -1,9 +1,13 @@
 console.log("Background is running...");
 
-var html = null;
+var html = null;  // currently selected element from content
 var currentRC = [];
-var coordinateHash = {};   /* Keys are rc coordinates and values are html strings.
- { r0c1: “<div>cats</div>”, r1c1: “<div>meow</div>” } */
+
+/* Keys are rc coordinates and values are html strings. {
+    r0c1: “<div>cats</div>”,
+    r1c1: “<div>meow</div>”
+ } */
+var coordinateHash = {};
 
 // for generator
 var bits = {
@@ -15,7 +19,7 @@ var bits = {
 
 var colMaker = function(sz, span) {
     console.log("in colMaker, sz " + sz, ", span: " + span);
-    return '<div class="col-' + sz + '-' + span + '"></div>';
+    return '<div class="col-' + sz + '-' + span + '">';
 }
 
 chrome.runtime.onMessage.addListener(
@@ -72,7 +76,7 @@ chrome.runtime.onMessage.addListener(
         // generate and send the new html to the frontend
         if (request.action == "generateHTML") {
             console.log("Received request to generate html");
-            var sz = "lg";
+            var sz = request.action.sz || "md";
             var newHTML = "";
             var dim = currentRC;
             var rows = dim[0], cols = dim[1];
@@ -86,15 +90,13 @@ chrome.runtime.onMessage.addListener(
                 for (var j = 0; j < cols; j++){
                     // check the hash obj
                     key = "r" + i + "c" + j;
-                    console.log("i is", i, "j is", j);
-                    console.log("key is", key);
-                    console.log("coordinateHash is", coordinateHash);
-                    if (coordinateHash.hasOwnProperty(key)) {
+                    newHTML += colMaker(sz, span);
+                    if (coordinateHash.hasOwnProperty(key)) { // add content
                         console.log("coordinateHash[key]", coordinateHash[key]);
                         console.log("appending the user's content!");
                         newHTML += coordinateHash[key];
                     }
-                    newHTML += colMaker(sz, span);
+                    newHTML += bits.close;
                 }
                 newHTML += bits.close;
             }

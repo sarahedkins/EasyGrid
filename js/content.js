@@ -21,4 +21,6 @@ $(document).click(function(event) {
 //});
 
 
+// TODO highlight on hover over clickable elements
+
 
