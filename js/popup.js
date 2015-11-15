@@ -1,5 +1,5 @@
 app.controller('MainCtrl', function($scope){
-    $scope.title = "EasyGrid"
+    $scope.title = "Griddle Cake"
     $scope.tab = {};
     $scope.error = null;
     $scope.selectedHTML = null;

@@ -1,7 +1,6 @@
 app.controller("GridCtrl", function($scope, GridFactory){
 
-    $scope.showGenHTML = false;
-    $scope.generatedHTML = "";
+    $scope.generatedHTML = "Code will appear here after you click generate!";
 
     // TODO make work for 5 cols?? weird.
     $scope.maxRC = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -93,22 +92,20 @@ app.controller("GridCtrl", function($scope, GridFactory){
     // display last generated html when popup opens
     chrome.runtime.sendMessage({action: "getLastGenHTML"}, function(response){
         $scope.generatedHTML = response.data;
-        $scope.showGenHTML = true;
         $scope.$apply();
     });
 
     // generate new HTML and update the view to reflect it
     $scope.generateHTML = function() {
         chrome.runtime.sendMessage({action: "generateHTML", sz: "md"}, function(response){
-            $scope.generatedHTML = response.data;
-            $scope.showGenHTML = true;
-            $scope.$apply();
-
-            chrome.tabs.query({active:true,currentWindow:true},function(tabs){
-                var message = { action: "changeContent", html: $scope.generatedHTML};
+            chrome.tabs.query({active:true,currentWindow:true}, function(tabs){
+                var message = { action: "changeContent", html: response.data};
                 chrome.tabs.sendMessage(tabs[0].id, message, function(response){
+                    $scope.generatedHTML = response.data;
+                    $scope.$apply();
                 });
             });
+
         });
     }
 

@@ -21,7 +21,7 @@ var colMaker = function(sz, span) {
     return '<div class="col-' + sz + '-' + span + '">';
 }
 
-var lastGeneratedHTML;
+var lastGeneratedHTML = "";
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -57,8 +57,8 @@ chrome.runtime.onMessage.addListener(
 
         // receive coordinates, combine with current html and save in hash
         if (request.action == "updateCoordHash") {
-            var key = "r" + request.data.x + "c" + request.data.y;
-            coordinateHash[key] = html;
+            var key1 = "r" + request.data.x + "c" + request.data.y;
+            coordinateHash[key1] = html;
             sendResponse({data: coordinateHash});
         }
 
@@ -81,7 +81,7 @@ chrome.runtime.onMessage.addListener(
 
         // generate and send the new html to the frontend
         if (request.action == "generateHTML") {
-            var sz = request.action.sz || "md";
+            var sz = request.sz || "md";
             var newHTML = "";
             var dim = currentRC;
             var rows = dim[0], cols = dim[1];
