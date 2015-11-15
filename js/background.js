@@ -76,14 +76,12 @@ chrome.runtime.onMessage.addListener(
 
         // clear the last generated html
         if (request.action == "clearLastGen") {
-            console.log("clearLastGen was called in bg ###");
             lastGeneratedHTML = genMsg;
             sendResponse({data: lastGeneratedHTML});
         }
 
         // generate and send the new html to the frontend
         if (request.action == "generateHTML") {
-            console.log("got in generateHTML in bg.");
             var sz = request.sz || "md";
             var newHTML = "";
             var dim = currentRC;
@@ -108,13 +106,11 @@ chrome.runtime.onMessage.addListener(
             }
             newHTML += bits.close;
             lastGeneratedHTML = newHTML;
-            console.log("lastGenHTML is set to", lastGeneratedHTML);
             sendResponse({data: lastGeneratedHTML});
         }
 
         // send the last generated HTML (to show upon popup)
         if (request.action == "getLastGenHTML") {
-            console.log("From bg, sending lastGenHTML:", lastGeneratedHTML);
             sendResponse({data: lastGeneratedHTML});
         }
 

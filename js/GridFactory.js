@@ -55,8 +55,6 @@ app.controller("GridCtrl", function($scope, GridFactory){
             $scope.$apply();
         });
         chrome.runtime.sendMessage({action: "clearLastGen"}, function(response){
-            console.log("clearedLastGen!!!!");
-            console.log("resp.data in clearLastGen", response.data);
             $scope.generatedHTML = response.data;
             GridFactory.drawGrid(r, c);
             $scope.$apply();
@@ -92,7 +90,6 @@ app.controller("GridCtrl", function($scope, GridFactory){
 
     // display last generated html when popup opens
     chrome.runtime.sendMessage({action: "getLastGenHTML"}, function(response){
-        console.log("getLastGenHTML came back with resp.data:", response.data);
         $scope.generatedHTML = response.data;
         $scope.$apply();
     });
@@ -101,13 +98,9 @@ app.controller("GridCtrl", function($scope, GridFactory){
     $scope.generateHTML = function() {
         chrome.runtime.sendMessage({action: "generateHTML", sz: "md"}, function(response){
             var resFromGenHTML = response.data;
-            console.log("resFromGenHTML (this should be the new html!! frontend.::)", resFromGenHTML);
             chrome.tabs.query({active:true,currentWindow:true}, function(tabs){
-                console.log("in tabs query in generateHTML in frontend. tabs");
-                console.log("new html to changeContent to is resp.data:", response.data);
                 var message = { action: "changeContent", html: response.data};
                 chrome.tabs.sendMessage(tabs[0].id, message, function(response){
-                    console.log("in generateHTML, response from content is", response);
                     $scope.generatedHTML = response.data;
                     $scope.$apply();
                 });
@@ -134,9 +127,8 @@ app.factory("GridFactory", function(){
 
     var colors = ["Blue", "BlueViolet", "Coral", "Crimson",
         "DarkSeaGreen", "DeepPink", "Gold", "GreenYellow",
-        "Tan", "SkyBlue", "Red", "Black", "Green", "Yellow", "Orange", "AliceBlue"];
-
-    var lastGeneratedHTML;
+        "Tan", "SkyBlue", "Red", "Black", "Green", "Yellow", "Orange",
+        "AliceBlue", "Goldenrod", "Gray", "CadetBlue"];
 
     var gridFactory = {
         setCanvasByWidth: function(width){

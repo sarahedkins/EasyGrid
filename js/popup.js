@@ -1,11 +1,9 @@
 app.controller('MainCtrl', function($scope){
-    $scope.title = "Griddle Cake"
+    $scope.title = "Griddler"
     $scope.tab = {};
-    $scope.error = null;
     $scope.selectedHTML = null;
     $scope.showHTML = false;
     $scope.showError = true;
-
     $scope.onGrid = [];
 
     // get HTML from background, put it on the pop-up scope
@@ -13,8 +11,6 @@ app.controller('MainCtrl', function($scope){
         if(response.data) {
             $scope.selectedHTML = response.data;
             $scope.showHTML = true;
-        } else {
-            $scope.error = response.error;
         }
         $scope.$apply();
     });
