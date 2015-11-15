@@ -12,10 +12,10 @@ body {
     font-size: 13px;
 }
 
-.container {
-    margin: 1px 8px 0px 8px;
-    padding-bottom: 3px;
-}
+/*.container {*/
+    /*margin: 1px 8px 0px 8px;*/
+    /*padding-bottom: 3px;*/
+/*}*/
 
 .push-down {
     padding-top: 20px;
@@ -37,5 +37,15 @@ body {
 
 #currently-selected {
     height: 3em;
+    width: 100%;
+}
+
+#legend {
+    height: 187.5px;
+}
+
+#genHTML {
+    margin-top: 10px;
+    height: 5em;
     width: 100%;
 }
