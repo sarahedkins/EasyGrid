@@ -9,7 +9,7 @@ var currentRC = [];
  } */
 var coordinateHash = {};
 
-// for generator
+// for html generator
 var bits = {
     container: '<div class="container">',
     row: '<div class="row">',
@@ -21,7 +21,8 @@ var colMaker = function(sz, span) {
     return '<div class="col-' + sz + '-' + span + '">';
 }
 
-var lastGeneratedHTML = "";
+var genMsg = "Your generated html will appear here. Configure a grid above.";
+var lastGeneratedHTML = genMsg;
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
@@ -75,12 +76,14 @@ chrome.runtime.onMessage.addListener(
 
         // clear the last generated html
         if (request.action == "clearLastGen") {
-            lastGeneratedHTML = "";
+            console.log("clearLastGen was called in bg ###");
+            lastGeneratedHTML = genMsg;
             sendResponse({data: lastGeneratedHTML});
         }
 
         // generate and send the new html to the frontend
         if (request.action == "generateHTML") {
+            console.log("got in generateHTML in bg.");
             var sz = request.sz || "md";
             var newHTML = "";
             var dim = currentRC;
@@ -105,11 +108,13 @@ chrome.runtime.onMessage.addListener(
             }
             newHTML += bits.close;
             lastGeneratedHTML = newHTML;
-            sendResponse({data: newHTML});
+            console.log("lastGenHTML is set to", lastGeneratedHTML);
+            sendResponse({data: lastGeneratedHTML});
         }
 
         // send the last generated HTML (to show upon popup)
         if (request.action == "getLastGenHTML") {
+            console.log("From bg, sending lastGenHTML:", lastGeneratedHTML);
             sendResponse({data: lastGeneratedHTML});
         }
 

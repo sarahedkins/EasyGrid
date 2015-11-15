@@ -48,7 +48,7 @@
           </div>
       </div>
       <div class="row text-center">
-        <form class="form-inline" name="gridForm" ng-submit="drawGrid(newGrid.rows, newGrid.cols)">
+        <div class="form-inline" name="gridForm">
           <div>
           <div class="col-xs-3">
             <label for="rows">Rows:</label>
@@ -64,7 +64,7 @@
           </div>
           </div>
           <div class="col-xs-3 push-down">
-            <button type="submit" class="btn btn-success">
+            <button type="submit" class="btn btn-success" ng-click="freshGrid(newGrid.rows, newGrid.cols)">
               <i class="glyphicon glyphicon-th-large"></i>
                 Make Grid
             </button>
@@ -75,10 +75,10 @@
               Generate HTML
             </button>
           </div>
-        </form>
+        </div>
       </div>
       <div class="row">
-        <div ng-show="showGenHTML"><code id="genHTML" class="scroll-box">{{ generatedHTML }}</code></div>
+        <div><code id="genHTML" class="scroll-box">{{ generatedHTML }}</code></div>
       </div>
     </div>
 
