@@ -37,6 +37,10 @@
           <div class="col-xs-6">
             <div class="scroll-box" id="legend">
               <ul>
+                <li ng-if="inNestMode">
+                  <div> NEST MODE ACTIVATED </div>
+                  <div>  {{ confirmBlockToNest }} </div>
+                </li>
                 <li ng-repeat="item in legend" style="list-style-type: none">
                   <span class="glyphicon glyphicon-triangle-left" style="color:{{ item.color }}"></span>
                   {{ item.html | limitTo:35 }}{{ item.html.length > 35 ? '...' : '' }}
@@ -48,26 +52,36 @@
       <div class="row text-center">
         <div class="form-inline" name="gridForm">
           <div>
-          <div class="col-xs-3">
+          <div class="col-xs-2">
             <label for="rows">Rows:</label>
             <select class="form-control" name="rows" ng-model="newGrid.rows"
                     ng-options="num for num in maxRC" required>
             </select>
           </div>
-          <div class="col-xs-3">
+          <div class="col-xs-2">
             <label for="cols">Columns:</label>
             <select class="form-control" name="cols" ng-model="newGrid.cols"
                     ng-options="num for num in maxRC" required>
             </select>
           </div>
           </div>
-          <div class="col-xs-3 push-down">
+          <div class="col-xs-2 push-down">
             <button type="submit" class="btn btn-success" ng-click="freshGrid(newGrid.rows, newGrid.cols)">
               <i class="glyphicon glyphicon-th-large"></i>
                 Make Grid
             </button>
+            <button type="submit" class="btn btn-success" ng-click="nestGrid(newGrid.rows, newGrid.cols)">
+              <i class="glyphicon glyphicon-th-large"></i>
+              Nest Grid
+            </button>
           </div>
-          <div class="col-xs-3 push-down">
+          <div class="col-xs-2 push-down">
+            <button type="submit" class="btn btn-danger" ng-click="setNestMode()">
+              <i class="glyphicon glyphicon-tree-deciduous"></i>
+              Nest Mode
+            </button>
+          </div>
+          <div class="col-xs-2 push-down">
             <button type="submit" class="btn btn-warning" ng-click="generateHTML()">
               <i class="glyphicon glyphicon-th-large"></i>
               Generate HTML

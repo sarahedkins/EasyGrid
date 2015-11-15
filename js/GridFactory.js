@@ -5,6 +5,59 @@ app.controller("GridCtrl", function($scope, GridFactory){
     // TODO make work for 5 cols?? weird.
     $scope.maxRC = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
+
+    // helper function to draw on ctx
+    var drawRowsAndCols = function(ctx, gridObj) {
+        var curr = gridObj;
+        var height = curr.getHeight(), width = curr.getrSpace();
+        var rSpacing = curr.getrSpace();
+        var cSpacing = curr.getcSpace();
+        for (var i = 0; i < height; i += rSpacing) {
+            ctx.moveTo(0, i);
+            ctx.lineTo(width, i);
+            ctx.stroke();
+        }
+        for (var i = 0; i < width; i += cSpacing){
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, height);
+            ctx.stroke();
+        }
+    };
+
+    // get mainGrid from bg, draw the whole grid
+    var drawTheGrid = function(){
+
+        chrome.runtime.sendMessage({action: "getMainGrid"}, function(res){
+            console.log("got main grid: ", res.data);
+            var canvas = document.getElementById("display");
+            if (canvas.getContext) {
+                var ctx = canvas.getContext("2d");
+                ctx.beginPath();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = "black";
+
+                var _draw = function(values, ctx) {
+                    for (var item in values) {
+                        if (item.hasOwnProperty("type")) {
+                            if (item.type = "grid") {
+                                drawRowsAndCols(ctx, item.data);
+                                _draw(item.data.getAllValues(), ctx);
+                            }
+                        }
+                    }
+                };
+
+                var curr = res.data; // initialize to mainGrid
+                var values = curr.getAllValues();
+                _draw(values, ctx);
+            }
+        });
+
+    };
+
+    drawTheGrid();  // on start, draw the grid outline
+
+
     // get saved grid rows/cols from background to display
     chrome.runtime.sendMessage({action: "getRC"}, function(response){
         var rc = response.data;
@@ -50,41 +103,70 @@ app.controller("GridCtrl", function($scope, GridFactory){
 
     $scope.freshGrid = function(r, c) {
         // clear previous settings (coordHash and lastGenHTML in bg, legend in frontend)
-        chrome.runtime.sendMessage({action: "clearCoordHash"}, function(response){
+        chrome.runtime.sendMessage({action: "resetGrid"}, function(response){
             $scope.legend = [];
             $scope.$apply();
         });
         chrome.runtime.sendMessage({action: "clearLastGen"}, function(response){
             $scope.generatedHTML = response.data;
-            GridFactory.drawGrid(r, c);
+            // draw new grid
+            GridFactory.drawGrids(r, c);
             $scope.$apply();
         });
     };
+
+    $scope.nestGrid = function(r, c) {
+        console.log("nestGrid clicked");
+        chrome.runtime.sendMessage({action: "addNestedGrid", r: r, c: c}, function(response){
+            console.log("coordHash[keyofBlockToNestIn]res.data", response.data);
+        });
+    };
+
+    // Nesting // -----------------------------------------------------------------
+
+    // toggle nest mode
+    $scope.inNestMode = false;
+    $scope.setNestMode = function(){
+        $scope.inNestMode = !$scope.inNestMode;
+    };
+
+    // -----------------------------------------------------------------------------
 
     // canvas click listener
     var canvas = document.getElementById("display");
     canvas.addEventListener('click', function(e) {
 
-        // check if there is any currently selected html. if no - return.
-        // get HTML from background, put it on the pop-up scope
-        chrome.runtime.sendMessage({action: "sendHTML"}, function(response){
-            if(!response.data) {
-                return;
-            } else {
-                var x = e.offsetX, y = e.offsetY;
-                // send coordinates to the background,
-                // where it will be paired with the currently selected html
-                // and stored in a coordinate hash
-                var rc = GridFactory.getCoordinatesFromPixels(x, y);
-                var r = rc[0], c = rc[1];
-                chrome.runtime.sendMessage({action: "updateCoordHash", data: {x: r, y: c}}, function(response){
-                    // keep view in sync with background
-                    paintGridFromHash();
-                });
-            }
-        });
-    }, false);
+        var x = e.offsetX, y = e.offsetY;
+        var rc = GridFactory.getCoordinatesFromPixels(x, y);
+        var r = rc[0], c = rc[1];
 
+        // check if in Nest Mode
+        if ($scope.inNestMode) {
+            // send to background
+            console.log("in nestMode when canvas clicked");
+            chrome.runtime.sendMessage({action: "setBlockToNest",  rCoord: r, cCoord: c}, function(response){
+                $scope.confirmBlockToNest = "Block confirmed. Select dimensions.";
+                $scope.$apply();
+                console.log("res is", response);
+            });
+        }
+
+        // if NOT in Nest Mode, add html element
+        else {
+            // check if there is any currently selected html. if no - return.
+            // get HTML from background, put it on the pop-up scope
+            chrome.runtime.sendMessage({action: "sendHTML"}, function(response){
+                if(!response.data) {
+                    return;
+                } else {
+                    chrome.runtime.sendMessage({action: "updateCoordHash", data: {x: r, y: c}}, function(response){
+                        // keep view in sync with background
+                        paintGridFromHash();
+                    });
+                }
+            });
+        }
+    }, false);
 
     // HTML View //  -------------------------------------------------------------
 
@@ -144,12 +226,13 @@ app.factory("GridFactory", function(){
         getCurrentRC: function() {
             return [currentRows, currentCols];
         },
-        drawGrid: function(rows, cols) {
+        drawGrid: function(rows, cols, width, height) {
+            // draw the initial grid
             currentRows = rows;
             currentCols = cols;
 
             // send updated grid rows/cols to background for persistence
-            chrome.runtime.sendMessage({action: "gridRC", data: {row: rows, col: cols}}, function(response){});
+            chrome.runtime.sendMessage({action: "saveGridDimensions", data: {row: rows, col: cols, width: width, height: height}}, function(response){});
 
             var canvas = document.getElementById("display");
             if (canvas.getContext) {
@@ -200,7 +283,8 @@ app.factory("GridFactory", function(){
                 idx = idx % colors.length;
             }
             return colors[idx];
-        }
+        },
+
     };
 
     return gridFactory;
