@@ -18,24 +18,22 @@ var bits = {
 }
 
 var colMaker = function(sz, span) {
-    console.log("in colMaker, sz " + sz, ", span: " + span);
     return '<div class="col-' + sz + '-' + span + '">';
 }
+
+var lastGeneratedHTML;
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
 
         // when user clicks the page in content, save the html
         if (request.action == "saveHTML") {
-            console.log("The HTML for this page is:", request.data);
             html = request.data;
-            console.log("html in bg is now", html);
             sendResponse({data: request.data});
         }
 
-        // when the user clicks in the popup, send the html to the popup
+        // when the user clicks in the popup, send the currently selected html to the popup
         if (request.action == "sendHTML") {
-            console.log("Received request for HTML in bg.");
             var dataToSend = {};
             if (html) {
                 dataToSend.data = html;
@@ -47,7 +45,6 @@ chrome.runtime.onMessage.addListener(
 
         // when user creates a grid, save rows/cols here
         if (request.action == "gridRC") {
-            console.log("Received request to save row/col in bg.");
             currentRC[0] = request.data.row;
             currentRC[1] = request.data.col;
             sendResponse({data: "Successfully saved row/col values in bg."});
@@ -55,13 +52,11 @@ chrome.runtime.onMessage.addListener(
 
         // when user creates a grid, save rows/cols here
         if (request.action == "getRC") {
-            console.log("Received request to send row/col from bg.");
             sendResponse({data: currentRC});
         }
 
         // receive coordinates, combine with current html and save in hash
         if (request.action == "updateCoordHash") {
-            console.log("Received request to store coordinates in bg.");
             var key = "r" + request.data.x + "c" + request.data.y;
             coordinateHash[key] = html;
             sendResponse({data: coordinateHash});
@@ -69,13 +64,23 @@ chrome.runtime.onMessage.addListener(
 
         // send the coordinate hash back to the frontend
         if (request.action == "getCoordHash") {
-            console.log("Received request to send coordinates from bg.");
             sendResponse({data: coordinateHash});
+        }
+
+        // clear the coordinate hash
+        if (request.action == "clearCoordHash") {
+            coordinateHash = {};
+            sendResponse({data: coordinateHash});
+        }
+
+        // clear the last generated html
+        if (request.action == "clearLastGen") {
+            lastGeneratedHTML = "";
+            sendResponse({data: lastGeneratedHTML});
         }
 
         // generate and send the new html to the frontend
         if (request.action == "generateHTML") {
-            console.log("Received request to generate html");
             var sz = request.action.sz || "md";
             var newHTML = "";
             var dim = currentRC;
@@ -92,8 +97,6 @@ chrome.runtime.onMessage.addListener(
                     key = "r" + i + "c" + j;
                     newHTML += colMaker(sz, span);
                     if (coordinateHash.hasOwnProperty(key)) { // add content
-                        console.log("coordinateHash[key]", coordinateHash[key]);
-                        console.log("appending the user's content!");
                         newHTML += coordinateHash[key];
                     }
                     newHTML += bits.close;
@@ -101,7 +104,13 @@ chrome.runtime.onMessage.addListener(
                 newHTML += bits.close;
             }
             newHTML += bits.close;
+            lastGeneratedHTML = newHTML;
             sendResponse({data: newHTML});
+        }
+
+        // send the last generated HTML (to show upon popup)
+        if (request.action == "getLastGenHTML") {
+            sendResponse({data: lastGeneratedHTML});
         }
 
     });

@@ -22,7 +22,6 @@
     <div class="row">
       <h5> {{ title }}</h5>
       <p> You are griddling {{ tab.title}}. </p>
-      <div id="status"></div>
       <div>
         <div ng-if="error"> {{ error }} </div>
         <div ng-if="showHTML"> Currently selected: {{ selectedHTML }} </div>
@@ -32,52 +31,51 @@
 
      <!--Canvas and Grid Input Form-->
     <div ng-controller="GridCtrl">
-    <div class="row">
-        <div class="col-xs-5">
-          <div>
-            <canvas id="display" width="{{ dim.width }}" height="{{ dim.height }}"></canvas>
-          </div>
-        </div>
-        <div class="col-xs-7">
-          <ul>
-            <li ng-repeat="item in legend" style="list-style-type: none">
-              <span class="glyphicon glyphicon-triangle-left" style="color:{{ item.color }}"></span> {{ item.html }}
-            </li>
-          </ul>
-        </div>
-    </div>
-        <div class="row">
-          <form class="form-inline" name="gridForm" ng-submit="drawGrid(newGrid.rows, newGrid.cols)">
+      <div class="row">
+          <div class="col-xs-5">
             <div>
-            <div class="col-xs-4">
-              <label for="rows">Rows:</label>
-              <select class="form-control" name="rows" ng-model="newGrid.rows"
-                      ng-options="num for num in maxRC" required>
-              </select>
+              <canvas id="display" width="{{ dim.width }}" height="{{ dim.height }}"></canvas>
             </div>
-            <div class="col-xs-4">
-              <label for="cols">Columns:</label>
-              <select class="form-control" name="cols" ng-model="newGrid.cols"
-                      ng-options="num for num in maxRC" required>
-              </select>
-            </div>
-            </div>
-            <div class="col-xs-4">
-              <button type="submit" class="btn btn-success">
-                <i class="glyphicon glyphicon-th-large"></i>
-                  Make Grid
-              </button>
-            </div>
-          </form>
-        </div>
-    </div>
-
-    <div ng-controller="HTMLCtrl">
-      <button type="submit" class="btn btn-warning" ng-click="generateHTML()">
-        <i class="glyphicon glyphicon-th-large"></i>
-        Generate HTML
-      </button>
-      <div><pre>{{ generatedHTML }}</pre></div>
+          </div>
+          <div class="col-xs-7">
+            <ul>
+              <li ng-repeat="item in legend" style="list-style-type: none">
+                <span class="glyphicon glyphicon-triangle-left" style="color:{{ item.color }}"></span> {{ item.html }}
+              </li>
+            </ul>
+          </div>
+      </div>
+      <div class="row">
+        <form class="form-inline" name="gridForm" ng-submit="drawGrid(newGrid.rows, newGrid.cols)">
+          <div>
+          <div class="col-xs-4">
+            <label for="rows">Rows:</label>
+            <select class="form-control" name="rows" ng-model="newGrid.rows"
+                    ng-options="num for num in maxRC" required>
+            </select>
+          </div>
+          <div class="col-xs-4">
+            <label for="cols">Columns:</label>
+            <select class="form-control" name="cols" ng-model="newGrid.cols"
+                    ng-options="num for num in maxRC" required>
+            </select>
+          </div>
+          </div>
+          <div class="col-xs-4">
+            <button type="submit" class="btn btn-success">
+              <i class="glyphicon glyphicon-th-large"></i>
+                Make Grid
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="row">
+        <button type="submit" class="btn btn-warning" ng-click="generateHTML()">
+          <i class="glyphicon glyphicon-th-large"></i>
+          Generate HTML
+        </button>
+        <div ng-show="showGenHTML"><code>{{ generatedHTML }}</code></div>
+      </div>
     </div>
 
     </div>

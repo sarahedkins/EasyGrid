@@ -13,9 +13,6 @@ $(document).click(function(event) {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
     if (request.action == "changeContent") {
-        console.log("Got inside the changeContent listener in content.js.");
-        console.log("request.html is", request.html);
-
         document.body.innerHTML = request.html;
     }
 });

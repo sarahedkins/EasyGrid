@@ -15,7 +15,6 @@
     "angular-ui-router": "^0.2.15",
     "bootstrap": "^3.3.5",
     "express": "^4.13.3",
-    "paper": "^0.9.25",
     "path": "^0.12.7"
   }
 }

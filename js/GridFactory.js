@@ -1,22 +1,24 @@
 app.controller("GridCtrl", function($scope, GridFactory){
 
+    $scope.showGenHTML = false;
+    $scope.generatedHTML = "";
+
     // TODO make work for 5 cols?? weird.
     $scope.maxRC = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-    // get saved grid rows/cols from background to display for persistence
+    // get saved grid rows/cols from background to display
     chrome.runtime.sendMessage({action: "getRC"}, function(response){
         var rc = response.data;
         GridFactory.drawGrid(rc[0], rc[1]);
     });
 
-    // get saved grid element positions from coordinateHash in bg
+    // get saved grid element positions from coordinateHash in background
     var rcArr, rCoord, cCoord, rectCenter;
     $scope.legend = [];
     var paintGridFromHash = function(){
         $scope.legend = [];
         chrome.runtime.sendMessage({action: "getCoordHash"}, function(response){
             $scope.gridElements = response.data;
-            console.log("coordHash res.data", response.data);
             var color_index = 0;
             for (var key in $scope.gridElements) {
                 rcArr = key.split("c");
@@ -40,33 +42,75 @@ app.controller("GridCtrl", function($scope, GridFactory){
                 color_index++;
             }
         });
-    }
+    };
     paintGridFromHash();
 
     $scope.dim = {};
     $scope.dim.width = GridFactory.getWidth();
     $scope.dim.height = GridFactory.getHeight();
 
-    $scope.drawGrid = GridFactory.drawGrid;
+    $scope.drawGrid = function(r, c) {
+        // clear previous settings (coordHash and lastGenHTML in bg, legend in frontend)
+        chrome.runtime.sendMessage({action: "clearCoordHash"}, function(response){
+            $scope.legend = [];
+            $scope.$apply();
+        });
+        chrome.runtime.sendMessage({action: "clearLastGen"}, function(response){
+            GridFactory.updateLastGen(response.data);
+            $scope.generatedHTML = "";
+            GridFactory.drawGrid(r, c);
+            $scope.$apply();
+        });
+    };
 
     // canvas click listener
     var canvas = document.getElementById("display");
     canvas.addEventListener('click', function(e) {
-        console.log('click position: ' + e.offsetX + '/' + e.offsetY);
-        var x = e.offsetX, y = e.offsetY;
 
-        // send coordinates to the background,
-        // where it will be paired with the currently selected html
-        // and stored in a coordinate hash
-        var rc = GridFactory.getCoordinatesFromPixels(x, y);
-        var r = rc[0], c = rc[1];
-        chrome.runtime.sendMessage({action: "updateCoordHash", data: {x: r, y: c}}, function(response){
-            console.log("Response from updateCoordHash is", response);
-            // keep view in sync with background
-            paintGridFromHash();
+        // check if there is any currently selected html. if no - return.
+        // get HTML from background, put it on the pop-up scope
+        chrome.runtime.sendMessage({action: "sendHTML"}, function(response){
+            if(!response.data) {
+                return;
+            } else {
+                var x = e.offsetX, y = e.offsetY;
+                // send coordinates to the background,
+                // where it will be paired with the currently selected html
+                // and stored in a coordinate hash
+                var rc = GridFactory.getCoordinatesFromPixels(x, y);
+                var r = rc[0], c = rc[1];
+                chrome.runtime.sendMessage({action: "updateCoordHash", data: {x: r, y: c}}, function(response){
+                    // keep view in sync with background
+                    paintGridFromHash();
+                });
+            }
         });
-
     }, false);
+
+
+    // HTML View //  -------------------------------------------------------------
+
+    // display last generated html when popup opens
+    chrome.runtime.sendMessage({action: "getLastGenHTML"}, function(response){
+        $scope.generatedHTML = response.data;
+        $scope.showGenHTML = true;
+        $scope.$apply();
+    });
+
+    // generate new HTML and update the view to reflect it
+    $scope.generateHTML = function() {
+        chrome.runtime.sendMessage({action: "generateHTML", sz: "md"}, function(response){
+            $scope.generatedHTML = response.data;
+            $scope.showGenHTML = true;
+            $scope.$apply();
+
+            chrome.tabs.query({active:true,currentWindow:true},function(tabs){
+                var message = { action: "changeContent", html: $scope.generatedHTML};
+                chrome.tabs.sendMessage(tabs[0].id, message, function(response){
+                });
+            });
+        });
+    }
 
 });
 
@@ -89,6 +133,8 @@ app.factory("GridFactory", function(){
         "DarkSeaGreen", "DeepPink", "Gold", "GreenYellow",
         "Tan", "SkyBlue", "Red", "Black"];
 
+    var lastGeneratedHTML;
+
     var gridFactory = {
         setCanvasByWidth: function(width){
             canvasWidth = width;
@@ -108,9 +154,7 @@ app.factory("GridFactory", function(){
             currentCols = cols;
 
             // send updated grid rows/cols to background for persistence
-            chrome.runtime.sendMessage({action: "gridRC", data: {row: rows, col: cols}}, function(response){
-                console.log("Response from gridRC is", response);
-            });
+            chrome.runtime.sendMessage({action: "gridRC", data: {row: rows, col: cols}}, function(response){});
 
             var canvas = document.getElementById("display");
             if (canvas.getContext) {
@@ -146,15 +190,11 @@ app.factory("GridFactory", function(){
             // find the center in pixels of a given grid position
             var rSpacing = getRSpacing(); // number of pixels per row
             var rowTop = r * rSpacing; // pixel at the top of the row
-            console.log("rowTop", rowTop);
             var y = rowTop + (rSpacing/2);
-            console.log("y", y);
 
             var cSpacing = getCSpacing(); // number of pixels per col
             var colLeft = c * cSpacing;
             var x = colLeft + (cSpacing/2);
-            console.log("x is", x);
-            console.log("From getPixelsByCoords, x,y", [x,y]);
             return [x, y];
         },
         markerSize: function(){
@@ -165,6 +205,12 @@ app.factory("GridFactory", function(){
                 idx = idx % colors.length;
             }
             return colors[idx];
+        },
+        updateLastGen: function(str) {
+            lastGeneratedHTML = str;
+        },
+        getLastGen: function(){
+            return lastGeneratedHTML;
         }
     };
 
